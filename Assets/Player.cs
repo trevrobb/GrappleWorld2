@@ -8,44 +8,44 @@ using UnityEngine.Playables;
 public class Player : MonoBehaviour
 {
     [Header("Movement")]
-    private float moveSpeed;
-    public float walkSpeed;
-    public float sprintSpeed;
-    public float swingSpeed;
+    [SerializeField] float moveSpeed;
+    [SerializeField] float walkSpeed;
+    [SerializeField] float sprintSpeed;
+    [SerializeField] float swingSpeed;
 
-    public float groundDrag;
+    [SerializeField] float groundDrag;
 
     [Header("Jumping")]
-    public float jumpForce;
-    public float jumpCooldown;
-    public float airMultiplier;
+    [SerializeField] float jumpForce;
+    [SerializeField] float jumpCooldown;
+    [SerializeField] float airMultiplier;
     bool readyToJump;
 
     [Header("Crouching")]
-    public float crouchSpeed;
-    public float crouchYScale;
+    [SerializeField] float crouchSpeed;
+    [SerializeField] float crouchYScale;
     private float startYScale;
 
     [Header("Keybinds")]
-    public KeyCode jumpKey = KeyCode.Space;
-    public KeyCode sprintKey = KeyCode.LeftShift;
-    public KeyCode crouchKey = KeyCode.LeftControl;
+    [SerializeField] KeyCode jumpKey = KeyCode.Space;
+    [SerializeField] KeyCode sprintKey = KeyCode.LeftShift;
+    [SerializeField] KeyCode crouchKey = KeyCode.LeftControl;
 
     [Header("Ground Check")]
-    public float playerHeight;
-    public LayerMask whatIsGround;
+    [SerializeField] float playerHeight;
+    [SerializeField] LayerMask whatIsGround;
     bool grounded;
 
     [Header("Slope Handling")]
-    public float maxSlopeAngle;
+    [SerializeField] float maxSlopeAngle;
     private RaycastHit slopeHit;
     private bool exitingSlope;
 
     [Header("Camera Effects")]
-    public PlayerCam cam;
-    public float grappleFov = 95f;
+    [SerializeField] PlayerCam cam;
+    [SerializeField] float grappleFov = 95f;
 
-    public Transform orientation;
+    [SerializeField] Transform orientation;
 
     float horizontalInput;
     float verticalInput;
@@ -55,6 +55,9 @@ public class Player : MonoBehaviour
     Rigidbody rb;
 
     public MovementState state;
+    [SerializeField] TextMeshProUGUI _text;
+    [SerializeField] bool playing;
+    private float timer;
     public enum MovementState
     {
         freeze,
@@ -79,6 +82,8 @@ public class Player : MonoBehaviour
         readyToJump = true;
 
         startYScale = transform.localScale.y;
+
+        playing = true;
         
     }
 
@@ -96,6 +101,15 @@ public class Player : MonoBehaviour
             rb.drag = groundDrag;
         else
             rb.drag = 0;
+
+        if (playing == true)
+        {
+            timer += Time.deltaTime;
+            int minutes = Mathf.FloorToInt(timer / 60f);
+            int seconds = Mathf.FloorToInt(timer % 60f);
+            int milliseconds = Mathf.FloorToInt((timer * 100f) % 100f);
+            _text.text = minutes.ToString("00") + ":" + seconds.ToString("00") + ":" + milliseconds.ToString("00");
+        }
     }
 
     private void FixedUpdate()
@@ -292,6 +306,10 @@ public class Player : MonoBehaviour
             ResetRestrictions();
 
             GetComponent<GrapplingGun>().StopGrappling();
+        }
+        if (collision.gameObject.name == "Finish")
+        {
+            playing = false;
         }
     }
 

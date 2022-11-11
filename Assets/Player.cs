@@ -14,7 +14,7 @@ public class Player : MonoBehaviour
     [SerializeField] float swingSpeed;
 
     [SerializeField] float groundDrag;
-
+    private GrapplingGun grapplingGun;
     [Header("Jumping")]
     [SerializeField] float jumpForce;
     [SerializeField] float jumpCooldown;
@@ -53,10 +53,12 @@ public class Player : MonoBehaviour
     Vector3 moveDirection;
 
     Rigidbody rb;
+    Boolean gameOver;
 
     public MovementState state;
     [SerializeField] TextMeshProUGUI _text;
     [SerializeField] bool playing;
+    public static Player instance;
     private float timer;
     public enum MovementState
     {
@@ -84,6 +86,8 @@ public class Player : MonoBehaviour
         startYScale = transform.localScale.y;
 
         playing = true;
+        instance = this;
+
         
     }
 
@@ -109,6 +113,10 @@ public class Player : MonoBehaviour
             int seconds = Mathf.FloorToInt(timer % 60f);
             int milliseconds = Mathf.FloorToInt((timer * 100f) % 100f);
             _text.text = minutes.ToString("00") + ":" + seconds.ToString("00") + ":" + milliseconds.ToString("00");
+        }
+        if (PauseMenu.isPaused || gameOver)
+        {
+            state = MovementState.freeze;
         }
     }
 
@@ -297,20 +305,23 @@ public class Player : MonoBehaviour
         activeGrapple = false;
         
     }
-
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.name.Equals("Finish"))
+        {
+            playing = false;
+            gameOver = true;
+        }
+    }
     private void OnCollisionEnter(Collision collision)
     {
         if (enableMovementOnNextTouch)
         {
             enableMovementOnNextTouch = false;
             ResetRestrictions();
-
-            GetComponent<GrapplingGun>().StopGrappling();
+            GrapplingGun.instance.StopGrappling();
         }
-        if (collision.gameObject.name == "Finish")
-        {
-            playing = false;
-        }
+        
     }
 
     private bool OnSlope()
@@ -342,6 +353,16 @@ public class Player : MonoBehaviour
         
 
         return velocityXZ + velocityY;
+    }
+
+    public float getTime()
+    {
+        return timer;
+    }
+
+    public Boolean gameEnd()
+    {
+        return gameOver;
     }
 
 }

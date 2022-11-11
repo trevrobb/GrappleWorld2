@@ -34,10 +34,11 @@ public class GrapplingGun : MonoBehaviour
     [SerializeField] RaycastHit predictionHit;
     [SerializeField] float predictionSphereCastRadius;
     [SerializeField] Transform predictionPoint;
-
+    public static GrapplingGun instance;
     private void Awake()
     {
         _player.GetComponent<Player>();
+        instance = this;
     }
 
 
@@ -55,6 +56,7 @@ public class GrapplingGun : MonoBehaviour
         }
 
         if (Input.GetKeyDown(grappleKey)) StartGrappling();
+        else if (Input.GetKeyUp(grappleKey)) StopGrappling();
 
         if (grapplingCdTimer > 0)
             grapplingCdTimer -= Time.deltaTime;
@@ -139,7 +141,7 @@ public class GrapplingGun : MonoBehaviour
 
         if (grapplePointRelativeYPos < 0) highestPointOnArc = overshootYAxis;
         _player.JumpToPosition(grapplePoint, highestPointOnArc);
-        Invoke(nameof(StopGrappling), 1f);
+        
 
     }
     public void StopGrappling()

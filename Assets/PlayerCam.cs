@@ -14,6 +14,7 @@ public class PlayerCam : MonoBehaviour
 
     private void Start()
     {
+        
         Cursor.lockState = CursorLockMode.Locked;
         
     }
@@ -31,6 +32,15 @@ public class PlayerCam : MonoBehaviour
 
         transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
         orientation.rotation = Quaternion.Euler(0, yRotation, 0);
+
+        if (PauseMenu.isPaused || Player.instance.gameEnd())
+        {
+            Cursor.lockState = CursorLockMode.Confined;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+        }
     }
     
 }

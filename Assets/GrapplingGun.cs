@@ -35,6 +35,9 @@ public class GrapplingGun : MonoBehaviour
     [SerializeField] float predictionSphereCastRadius;
     [SerializeField] Transform predictionPoint;
     public static GrapplingGun instance;
+    [SerializeField] AudioClip swing; 
+    [SerializeField] AudioClip grap;
+
     private void Awake()
     {
         _player.GetComponent<Player>();
@@ -55,8 +58,11 @@ public class GrapplingGun : MonoBehaviour
             StopGrapple();
         }
 
-        if (Input.GetKeyDown(grappleKey)) StartGrappling();
-        else if (Input.GetKeyUp(grappleKey)) StopGrappling();
+        if (Input.GetKeyDown(grappleKey))
+        {
+            
+            StartGrappling();
+        }
 
         if (grapplingCdTimer > 0)
             grapplingCdTimer -= Time.deltaTime;
@@ -75,6 +81,7 @@ public class GrapplingGun : MonoBehaviour
 
        
             isGrappling = true;
+            AudioSource.PlayClipAtPoint(swing, transform.position);
             grapplePoint = predictionHit.point;
             joint = player.gameObject.AddComponent<SpringJoint>();
             joint.autoConfigureConnectedAnchor = false;
@@ -88,6 +95,7 @@ public class GrapplingGun : MonoBehaviour
             joint.spring = 15f;
             joint.damper = 20f;
             joint.massScale = 20f;
+            
 
 
         
@@ -135,12 +143,14 @@ public class GrapplingGun : MonoBehaviour
     private void ExecuteGrapple()
     {
         _player.freeze = false;
+        AudioSource.PlayClipAtPoint(grap, transform.position);
         Vector3 lowestPoint = new Vector3(transform.position.x, transform.position.y - 1f, transform.position.z);
         float grapplePointRelativeYPos = grapplePoint.y - lowestPoint.y;
         float highestPointOnArc = grapplePointRelativeYPos + overshootYAxis;
 
         if (grapplePointRelativeYPos < 0) highestPointOnArc = overshootYAxis;
         _player.JumpToPosition(grapplePoint, highestPointOnArc);
+        Invoke(nameof(StopGrappling), 0.8f);
         
 
     }

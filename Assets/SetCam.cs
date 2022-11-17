@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class SetCam : MonoBehaviour
 {
-    public Transform camPosition;
+    [SerializeField] Transform camPosition;
     // Update is called once per frame
     void Update()
     {

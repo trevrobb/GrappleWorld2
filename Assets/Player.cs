@@ -4,10 +4,14 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Playables;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
-    [Header("Movement")]
+    /*Watched a tutorial for the rb movement, mainly for the JumptoPosition function but also was not aware of how to do a bit of this, it is not an exact replica of what I watched the tutorial on, 
+      but they are definitely similar in many regards*/
+
+    //movement
     [SerializeField] float moveSpeed;
     [SerializeField] float walkSpeed;
     [SerializeField] float sprintSpeed;
@@ -15,33 +19,23 @@ public class Player : MonoBehaviour
 
     [SerializeField] float groundDrag;
     private GrapplingGun grapplingGun;
-    [Header("Jumping")]
+
+    //jumping 
     [SerializeField] float jumpForce;
     [SerializeField] float jumpCooldown;
     [SerializeField] float airMultiplier;
     bool readyToJump;
 
-    [Header("Crouching")]
-    [SerializeField] float crouchSpeed;
-    [SerializeField] float crouchYScale;
-    private float startYScale;
-
-    [Header("Keybinds")]
+    //keybinds
     [SerializeField] KeyCode jumpKey = KeyCode.Space;
     [SerializeField] KeyCode sprintKey = KeyCode.LeftShift;
-    [SerializeField] KeyCode crouchKey = KeyCode.LeftControl;
 
-    [Header("Ground Check")]
+    //groundcheck
     [SerializeField] float playerHeight;
     [SerializeField] LayerMask whatIsGround;
     bool grounded;
 
-    [Header("Slope Handling")]
-    [SerializeField] float maxSlopeAngle;
-    private RaycastHit slopeHit;
-    private bool exitingSlope;
-
-    [Header("Camera Effects")]
+    //camera
     [SerializeField] PlayerCam cam;
     [SerializeField] float grappleFov = 95f;
 
@@ -55,11 +49,13 @@ public class Player : MonoBehaviour
     Rigidbody rb;
     Boolean gameOver;
 
-    public MovementState state;
+    [SerializeField] MovementState state;
     [SerializeField] TextMeshProUGUI _text;
     [SerializeField] bool playing;
     public static Player instance;
     private float timer;
+
+    [SerializeField] float tooLow = -50f;
     public enum MovementState
     {
         freeze,
@@ -67,7 +63,6 @@ public class Player : MonoBehaviour
         swinging,
         walking,
         sprinting,
-        crouching,
         air
     }
 
@@ -82,8 +77,6 @@ public class Player : MonoBehaviour
         rb.freezeRotation = true;
 
         readyToJump = true;
-
-        startYScale = transform.localScale.y;
 
         playing = true;
         instance = this;
@@ -118,6 +111,10 @@ public class Player : MonoBehaviour
         {
             state = MovementState.freeze;
         }
+        if (transform.position.y < tooLow)
+        {
+            SceneManager.LoadScene("SampleScene");
+        }
     }
 
     private void FixedUpdate()
@@ -140,18 +137,8 @@ public class Player : MonoBehaviour
             Invoke(nameof(ResetJump), jumpCooldown);
         }
 
-        // start crouch
-        if (Input.GetKeyDown(crouchKey))
-        {
-            transform.localScale = new Vector3(transform.localScale.x, crouchYScale, transform.localScale.z);
-            rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
-        }
+        
 
-        // stop crouch
-        if (Input.GetKeyUp(crouchKey))
-        {
-            transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
-        }
     }
 
     private void StateHandler()
@@ -176,13 +163,6 @@ public class Player : MonoBehaviour
         {
             state = MovementState.swinging;
             moveSpeed = swingSpeed;
-        }
-
-        // Mode - Crouching
-        else if (Input.GetKey(crouchKey))
-        {
-            state = MovementState.crouching;
-            moveSpeed = crouchSpeed;
         }
 
         // Mode - Sprinting
@@ -214,18 +194,10 @@ public class Player : MonoBehaviour
         // calculate movement direction
         moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
 
-        // on slope
-        if (OnSlope() && !exitingSlope)
-        {
-            rb.AddForce(GetSlopeMoveDirection() * moveSpeed * 20f, ForceMode.Force);
-
-            if (rb.velocity.y > 0)
-                rb.AddForce(Vector3.down * 80f, ForceMode.Force);
-        }
 
         // on ground
-        else if (grounded)
-            rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
+
+        if (grounded) rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
 
         // in air
         else if (!grounded)
@@ -235,39 +207,22 @@ public class Player : MonoBehaviour
             
 
 
-        // turn gravity off while on slope
-        rb.useGravity = !OnSlope();
+        
     }
 
     private void SpeedControl()
     {
         if (activeGrapple) return;
-
-        // limiting speed on slope
-        if (OnSlope() && !exitingSlope)
-        {
-            if (rb.velocity.magnitude > moveSpeed)
-                rb.velocity = rb.velocity.normalized * moveSpeed;
+        Vector3 flatVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+        if (flatVel.magnitude > moveSpeed){
+            Vector3 limitedVel = flatVel.normalized * moveSpeed;
+            rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
         }
-
-        // limiting speed on ground or in air
-        else
-        {
-            Vector3 flatVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-
-            // limit velocity if needed
-            if (flatVel.magnitude > moveSpeed)
-            {
-                Vector3 limitedVel = flatVel.normalized * moveSpeed;
-                rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
-            }
-        }
+        
     }
 
     private void Jump()
     {
-        exitingSlope = true;
-
         // reset y velocity
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
@@ -277,7 +232,6 @@ public class Player : MonoBehaviour
     {
         readyToJump = true;
 
-        exitingSlope = false;
     }
 
     private bool enableMovementOnNextTouch;
@@ -323,23 +277,6 @@ public class Player : MonoBehaviour
         }
         
     }
-
-    private bool OnSlope()
-    {
-        if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 1f))
-        {
-            float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
-            return angle < maxSlopeAngle && angle != 0;
-        }
-
-        return false;
-    }
-
-    private Vector3 GetSlopeMoveDirection()
-    {
-        return Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized;
-    }
-
     public Vector3 CalculateJumpVelocity(Vector3 startPoint, Vector3 endPoint, float trajectoryHeight)
     {
         float gravity = Physics.gravity.y;

@@ -14,7 +14,7 @@ public class PauseMenu : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Tab))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (isPaused)
             {
@@ -27,26 +27,26 @@ public class PauseMenu : MonoBehaviour
         }
     }
 
-    public void PauseGame()
+    void PauseGame()
     {
         pauseMenu.SetActive(true);
         Time.timeScale = 0f;
         isPaused = true;
     }
-    public void ResumeGame()
+    void ResumeGame()
     {
         pauseMenu.SetActive(false);
         Time.timeScale = 1f;
         isPaused = false;   
     }
 
-    public void Menu()
+    void Menu()
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene("Menu");
     }
 
-    public void QuitGame()
+    void QuitGame()
     {
         Application.Quit();
     }

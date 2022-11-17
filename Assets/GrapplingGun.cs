@@ -8,22 +8,26 @@ using UnityEngine.UIElements;
 
 public class GrapplingGun : MonoBehaviour
 {
+    /* Watched a tutorial for this, again it has been customized a bit to fit what I want it to be, and it is a culmination of multiple tutorials rather than watching just one, this script handles the core functionality of swinging
+      and grappling, I have a good understanding of what it does but definitely could not have came up with this by myself and for the most part got rid of all the public variables and whatnot plaguing this script. Both the 
+      swinging and the grappling come from different tutorials, so I have combined them into this one singular script */
+
     private LineRenderer lr;
     private Vector3 grapplePoint;
     [SerializeField] LayerMask grappleObject;
-    public Transform gunTip, camera, player;
+    public Transform gunTip, camera, player; //Cannot figure out how to not make this one public
     float maxDistance = 100f;
     [SerializeField] float grappleDelayTime;
     SpringJoint joint;
     [SerializeField] Player _player;
-    private Boolean isGrappling;
+    private Boolean isSwinging;
     private Boolean grappling;
     [SerializeField] float overshootYAxis;
 
     [SerializeField] float grapplingCd;
     private float grapplingCdTimer;
 
-    public KeyCode grappleKey = KeyCode.Mouse1;
+    [SerializeField] KeyCode grappleKey = KeyCode.Mouse1;
 
     [SerializeField] Transform orientation;
     [SerializeField] Rigidbody rb;
@@ -38,6 +42,8 @@ public class GrapplingGun : MonoBehaviour
     [SerializeField] AudioClip swing; 
     [SerializeField] AudioClip grap;
 
+
+
     private void Awake()
     {
         _player.GetComponent<Player>();
@@ -51,11 +57,11 @@ public class GrapplingGun : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            StartGrapple();
+            StartSwinging();
         }
         else if (Input.GetMouseButtonUp(0))
         {
-            StopGrapple();
+            StopSwinging();
         }
 
         if (Input.GetKeyDown(grappleKey))
@@ -73,14 +79,14 @@ public class GrapplingGun : MonoBehaviour
     }
 
 
-    void StartGrapple()
+    void StartSwinging()
     {
         if (predictionHit.point == Vector3.zero) return;
         if (grappling == true) StopGrappling();
         _player.ResetRestrictions();
 
        
-            isGrappling = true;
+            isSwinging = true;
             AudioSource.PlayClipAtPoint(swing, transform.position);
             grapplePoint = predictionHit.point;
             joint = player.gameObject.AddComponent<SpringJoint>();
@@ -101,10 +107,10 @@ public class GrapplingGun : MonoBehaviour
         
     }
 
-    void StopGrapple()
+    void StopSwinging()
     {
         Destroy(joint);
-        isGrappling = false;
+        isSwinging = false;
     }
 
     public Vector3 getGrapplePoint()
@@ -114,7 +120,7 @@ public class GrapplingGun : MonoBehaviour
 
     public Boolean isGrapple()
     {
-        return isGrappling;
+        return isSwinging;
     }
     public Boolean isGrapplingg()
     {
@@ -125,7 +131,7 @@ public class GrapplingGun : MonoBehaviour
     {
         if (grapplingCdTimer > 0) return;
         grappling = true;
-        StopGrapple();
+        StopSwinging();
         RaycastHit hit;
         if (predictionHit.point != Vector3.zero)
         {
@@ -160,7 +166,7 @@ public class GrapplingGun : MonoBehaviour
         grappling = false;
         grapplingCdTimer = grapplingCd;
     }
-
+    //Movement script that allows you to do a lot more with your swinging, called odmMovement as a nod to Attack on Titan :)
     public void odmMovement()
     {
         if (Input.GetKey(KeyCode.D)) rb.AddForce(orientation.right * horinontalThrustForce * Time.deltaTime);

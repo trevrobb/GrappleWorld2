@@ -10579,7 +10579,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0f463c183df45342b64ea9c9a9fc91d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  grapplingGun: {fileID: 1504954276}
   damper: 25
   quality: 2000
   strength: 1800
@@ -11099,7 +11098,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1531998991}
   m_LocalRotation: {x: 0.7071068, y: 0, z: -0.7071068, w: 0}
-  m_LocalPosition: {x: -17, y: 79.2, z: 119.2}
+  m_LocalPosition: {x: -17, y: 90.5, z: 177.1}
   m_LocalScale: {x: 40, y: 1, z: 25}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12440,27 +12439,24 @@ MonoBehaviour:
   moveSpeed: 75
   walkSpeed: 100
   sprintSpeed: 150
-  swingSpeed: 500
+  swingSpeed: 800
   groundDrag: 2
   jumpForce: 600
   jumpCooldown: 0.25
   airMultiplier: 0.63
-  crouchSpeed: 5
-  crouchYScale: 0.75
   jumpKey: 32
   sprintKey: 304
-  crouchKey: 306
   playerHeight: 2
   whatIsGround:
     serializedVersion: 2
     m_Bits: 192
-  maxSlopeAngle: 90
   cam: {fileID: 963194229}
   grappleFov: 200
   orientation: {fileID: 668092027}
   state: 0
   _text: {fileID: 1949383079}
   playing: 0
+  tooLow: -50
   freeze: 0
   activeGrapple: 0
   swinging: 0
@@ -14186,11 +14182,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a1f84d6bdee87fe4c82343a13376f4b8, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 79.6
+      value: 90.9
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a1f84d6bdee87fe4c82343a13376f4b8, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 118.07
+      value: 175.97
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a1f84d6bdee87fe4c82343a13376f4b8, type: 3}
       propertyPath: m_LocalRotation.w

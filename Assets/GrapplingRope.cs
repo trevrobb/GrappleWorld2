@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class GrapplingRope : MonoBehaviour
 {
+    /*this script is what actually renders my rope and applies the sin animation to it, what it does it basically break my line up into individual segments and applies the animation to each segment, while lerping the rope to
+      the desired position over time. It also came from a tutorial, but not the same one as where I got my swinging or grappling functionality. */
     private Spring spring;
     private LineRenderer lr;
-    public GrapplingGun grapplingGun;
     private Vector3 currentGrapplePosition;
     [SerializeField] float damper;
     [SerializeField] int quality;
@@ -23,9 +24,9 @@ public class GrapplingRope : MonoBehaviour
     }
     void DrawRope()
     {
-        if (!grapplingGun.isGrapple() && !grapplingGun.isGrapplingg())
+        if (!GrapplingGun.instance.isGrapple() && !GrapplingGun.instance.isGrapplingg())
         {
-            currentGrapplePosition = grapplingGun.gunTip.position;
+            currentGrapplePosition = GrapplingGun.instance.gunTip.position;
             spring.Reset();
             if (lr.positionCount > 0)
             {
@@ -43,10 +44,10 @@ public class GrapplingRope : MonoBehaviour
         spring.SetStrength(strength);
         spring.Update(Time.deltaTime);
 
-        var grapplePoint = grapplingGun.getGrapplePoint();
-        var gunTipPosition = grapplingGun.gunTip.position;
+        var grapplePoint = GrapplingGun.instance.getGrapplePoint();
+        var gunTipPosition = GrapplingGun.instance.gunTip.position;
         var up = Quaternion.LookRotation((grapplePoint - gunTipPosition).normalized) * Vector3.up;
-        currentGrapplePosition = Vector3.Lerp(currentGrapplePosition, grapplingGun.getGrapplePoint(), Time.deltaTime * 8f);
+        currentGrapplePosition = Vector3.Lerp(currentGrapplePosition, GrapplingGun.instance.getGrapplePoint(), Time.deltaTime * 8f);
             
         for (int i = 0; i < quality+1; i++)
         {
